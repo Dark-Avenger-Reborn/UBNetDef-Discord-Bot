@@ -86,4 +86,4 @@ async def on_ready():
     await bot.tree.sync()  # Sync the slash commands with Discord
 
 
-bot.run(env.SECRET_DISCORD_KEY)
+bot.run(os.getenv('SECRET_DISCORD_KEY'))

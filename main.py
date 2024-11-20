@@ -4,6 +4,7 @@ from discord import app_commands
 import os
 import random
 from jokes import jokes
+import requests
 
 intents = discord.Intents.default()
 intents.members = True
@@ -12,9 +13,9 @@ logo_url = "https://avatars.githubusercontent.com/u/11970540?s=200&v=4"
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 AUTHORIZED_USER_ID = [
-    801475805402103859,  #Me
-    221812910668775425,  #Ethan
-    722854408182038683,  #Blake
+    801475805402103859,  # Me
+    221812910668775425,  # Ethan
+    722854408182038683,  # Blake
 ]
 
 class ConfirmView(discord.ui.View):
@@ -84,30 +85,49 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
     if view.value is None:
         await interaction.followup.send("Timed out. The role removal has been cancelled.", ephemeral=True)
     elif view.value:
+        success = True
+        failed_members = []
         for member in guild.members:
             if role in member.roles:
                 try:
                     await member.remove_roles(role)
                 except discord.Forbidden:
-                    embed = discord.Embed(
-                        title="Permission Denied",
-                        description=f"Could not remove the role from {member.name} due to missing permissions. I may not have sufficient permissions for that user.",
-                        color=discord.Color.red()
-                    )
-                    embed.set_thumbnail(url=logo_url)
-                    await interaction.followup.send(embed=embed, ephemeral=True)
-                    continue
+                    failed_members.append(member.name)
+                    success = False
 
-        embed = discord.Embed(
-            title="Success",
-            description=f"Successfully removed the role {role.name} from all members who had it.",
-            color=discord.Color.green()
-        )
+        if success:
+            embed = discord.Embed(
+                title="Success",
+                description=f"Successfully removed the role {role.name} from all members who had it.",
+                color=discord.Color.green()
+            )
+        else:
+            embed = discord.Embed(
+                title="Partial Success",
+                description=f"Removed the role {role.name} from some members, but failed for: {', '.join(failed_members)}.",
+                color=discord.Color.orange()
+            )
         embed.set_thumbnail(url=logo_url)
         await interaction.followup.send(embed=embed)
+        
+        # Send webhook notification
+        webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
+        webhook_embed = discord.Embed(
+            title="Role Removal Command Executed",
+            color=discord.Color.blue()
+        )
+        webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
+        webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
+        webhook_embed.add_field(name="Role", value=role.name, inline=True)
+        webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
+        if failed_members:
+            webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
+        webhook_embed.set_thumbnail(url=logo_url)
+
+        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
+
     else:
         await interaction.followup.send("Role removal cancelled.", ephemeral=True)
-
 
 @bot.tree.command(name="bad_joke", description="Get a specified number of random bad jokes")
 async def bad_joke(interaction: discord.Interaction, number: int):

@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import os
+import random
+from jokes import jokes
 
 intents = discord.Intents.default()
 intents.members = True
@@ -105,6 +107,29 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         await interaction.followup.send(embed=embed)
     else:
         await interaction.followup.send("Role removal cancelled.", ephemeral=True)
+
+
+@bot.tree.command(name="bad_joke", description="Get a specified number of random bad jokes")
+async def bad_joke(interaction: discord.Interaction, number: int):
+    if number < 1:
+        embed = discord.Embed(
+            title="Invalid Number",
+            description="Please enter a number greater than 0.",
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    selected_jokes = random.sample(jokes, min(number, len(jokes)))
+
+    embed = discord.Embed(
+        title="Bad Jokes",
+        description="\n\n".join(selected_jokes),
+        color=discord.Color.blue()
+    )
+    embed.set_thumbnail(url=logo_url)
+    await interaction.response.send_message(embed=embed)
 
 @bot.event
 async def on_ready():

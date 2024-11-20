@@ -4,22 +4,36 @@ from discord import app_commands
 import os
 
 intents = discord.Intents.default()
-intents.members = True  # Necessary to manage members and roles
+intents.members = True
 logo_url = "https://avatars.githubusercontent.com/u/11970540?s=200&v=4"
 
-# Create a bot instance with intents
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Hardcoded User ID for the admin that can execute the command
 AUTHORIZED_USER_ID = [
     801475805402103859,  #Me
     221812910668775425,  #Ethan
     722854408182038683,  #Blake
-    ]
+]
+
+class ConfirmView(discord.ui.View):
+    def __init__(self, interaction: discord.Interaction, role: discord.Role):
+        super().__init__(timeout=60)
+        self.interaction = interaction
+        self.role = role
+        self.value = None
+
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        self.stop()
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = False
+        self.stop()
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):
-    # Replace with your authorization logic
     if interaction.user.id not in AUTHORIZED_USER_ID:
         embed = discord.Embed(
             title="Unauthorized Action",
@@ -30,10 +44,8 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # Get the guild (server)
     guild = interaction.guild
 
-    # Ensure the bot has permission to manage roles
     if not guild.me.guild_permissions.manage_roles:
         embed = discord.Embed(
             title="Missing Permissions",
@@ -45,7 +57,6 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # Ensure the bot's role is high enough to remove the role
     if guild.me.top_role.position <= role.position:
         embed = discord.Embed(
             title="Role Hierarchy Error",
@@ -57,33 +68,47 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    # Loop through all members and remove the role
-    for member in guild.members:
-        if role in member.roles:
-            try:
-                await member.remove_roles(role)
-            except discord.Forbidden:
-                embed = discord.Embed(
-                    title="Permission Denied",
-                    description=f"Could not remove the role from {member.name} due to missing permissions. I may not have sufficient permissions for that user.",
-                    color=discord.Color.red()
-                )
-                embed.set_thumbnail(url=logo_url)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                continue
-
+    view = ConfirmView(interaction, role)
     embed = discord.Embed(
-        title="Success",
-        description=f"Successfully removed the role {role.name} from all members who had it.",
-        color=discord.Color.green()
+        title="Confirmation",
+        description=f"Are you sure you want to remove the role '{role.name}' from all members who have it?",
+        color=discord.Color.yellow()
     )
     embed.set_thumbnail(url=logo_url)
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+    await view.wait()
+
+    if view.value is None:
+        await interaction.followup.send("Timed out. The role removal has been cancelled.", ephemeral=True)
+    elif view.value:
+        for member in guild.members:
+            if role in member.roles:
+                try:
+                    await member.remove_roles(role)
+                except discord.Forbidden:
+                    embed = discord.Embed(
+                        title="Permission Denied",
+                        description=f"Could not remove the role from {member.name} due to missing permissions. I may not have sufficient permissions for that user.",
+                        color=discord.Color.red()
+                    )
+                    embed.set_thumbnail(url=logo_url)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
+                    continue
+
+        embed = discord.Embed(
+            title="Success",
+            description=f"Successfully removed the role {role.name} from all members who had it.",
+            color=discord.Color.green()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.followup.send(embed=embed)
+    else:
+        await interaction.followup.send("Role removal cancelled.", ephemeral=True)
 
 @bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
-    await bot.tree.sync()  # Sync the slash commands with Discord
-
+    await bot.tree.sync()
 
 bot.run(os.getenv('SECRET_DISCORD_KEY'))

@@ -5,6 +5,9 @@ import os
 import random
 from jokes import jokes
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 intents = discord.Intents.default()
 intents.members = True

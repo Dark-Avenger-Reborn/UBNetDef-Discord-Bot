@@ -156,7 +156,7 @@ async def bad_joke(interaction: discord.Interaction, number: int):
     embed.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed=embed)
 
-@bot.command(name='what_is_real')
+@bot.command(name='what_is_real?')
 async def what_is_real(ctx):
     print("Someone found me")
     await ctx.send(str(essay_text))

@@ -6,6 +6,7 @@ import random
 from jokes import jokes
 import requests
 from dotenv import load_dotenv
+from essay import essay
 
 load_dotenv()
 
@@ -154,9 +155,14 @@ async def bad_joke(interaction: discord.Interaction, number: int):
     embed.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed=embed)
 
+@bot.command()
+async def essay(ctx, arg):
+    await ctx.send(essay)
+
 @bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.tree.sync()
 
+bot.add_command(essay)
 bot.run(os.getenv('SECRET_DISCORD_KEY'))

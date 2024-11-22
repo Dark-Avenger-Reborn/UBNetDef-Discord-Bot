@@ -164,5 +164,4 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.tree.sync()
 
-bot.add_command(essay)
 bot.run(os.getenv('SECRET_DISCORD_KEY'))

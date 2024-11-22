@@ -156,8 +156,8 @@ async def bad_joke(interaction: discord.Interaction, number: int):
     embed.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed=embed)
 
-@bot.command()
-async def what_is_real(ctx, arg):
+@bot.command(name='what_is_real?')
+async def hi(ctx):
     await ctx.send(essay_text)
 
 @bot.event

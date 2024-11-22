@@ -15,6 +15,7 @@ intents.members = True
 logo_url = "https://avatars.githubusercontent.com/u/11970540?s=200&v=4"
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+bot.remove_command("what_is_real")
 
 AUTHORIZED_USER_ID = [
     801475805402103859,  # Me
@@ -164,5 +165,5 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.tree.sync()
 
-bot.add_command("what_is_real")
+bot.add_command(what_is_real)
 bot.run(os.getenv('SECRET_DISCORD_KEY'))

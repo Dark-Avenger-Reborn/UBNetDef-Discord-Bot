@@ -164,5 +164,6 @@ async def what_is_real(ctx):
 async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.tree.sync()
+    print('Bot is synced')
 
 bot.run(os.getenv('SECRET_DISCORD_KEY'))

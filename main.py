@@ -11,7 +11,8 @@ from essay import essay_text
 load_dotenv()
 
 intents = discord.Intents.default()
-intents.members = True
+intents.message_content = True  # Enable message content intent
+intents.members = True  # Enable member intents
 logo_url = "https://avatars.githubusercontent.com/u/11970540?s=200&v=4"
 
 bot = commands.Bot(command_prefix="!", intents=intents)

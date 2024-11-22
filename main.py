@@ -15,7 +15,6 @@ intents.members = True
 logo_url = "https://avatars.githubusercontent.com/u/11970540?s=200&v=4"
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-bot.remove_command("what_is_real")
 
 AUTHORIZED_USER_ID = [
     801475805402103859,  # Me
@@ -156,9 +155,10 @@ async def bad_joke(interaction: discord.Interaction, number: int):
     embed.set_thumbnail(url=logo_url)
     await interaction.response.send_message(embed=embed)
 
-@bot.command(name='what_is_real?')
+@bot.command(name='what_is_real')
 async def hi(ctx):
-    await ctx.send(essay_text)
+    print("Someone found me")
+    await ctx.send(str(essay_text))
 
 @bot.event
 async def on_ready():

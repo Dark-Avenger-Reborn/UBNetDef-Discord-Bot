@@ -156,7 +156,7 @@ async def bad_joke(interaction: discord.Interaction, number: int):
     await interaction.response.send_message(embed=embed)
 
 @bot.command()
-async def essay(ctx, arg):
+async def what_is_real(ctx, arg):
     await ctx.send(essay_text)
 
 @bot.event
@@ -164,4 +164,5 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.tree.sync()
 
+bot.add_command(what_is_real)
 bot.run(os.getenv('SECRET_DISCORD_KEY'))

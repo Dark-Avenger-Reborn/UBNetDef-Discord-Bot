@@ -57,6 +57,7 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
     webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
     webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
     webhook_embed.add_field(name="Role", value=role.name, inline=True)
+    webhook_embed.set_thumbnail(url=logo_url)
 
     # Check if the user is authorized
     if interaction.user.id not in AUTHORIZED_USER_ID:

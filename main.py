@@ -114,25 +114,25 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
             )
         embed.set_thumbnail(url=logo_url)
         await interaction.followup.send(embed=embed)
-        
-        # Send webhook notification
-        webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
-        webhook_embed = discord.Embed(
-            title="Role Removal Command Executed",
-            color=discord.Color.blue()
-        )
-        webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
-        webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
-        webhook_embed.add_field(name="Role", value=role.name, inline=True)
-        webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
-        if failed_members:
-            webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
-        webhook_embed.set_thumbnail(url=logo_url)
-
-        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
 
     else:
         await interaction.followup.send("Role removal cancelled.", ephemeral=True)
+
+    # Send webhook notification
+    webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
+    webhook_embed = discord.Embed(
+        title="Role Removal Command Executed",
+        color=discord.Color.blue()
+    )
+    webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
+    webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
+    webhook_embed.add_field(name="Role", value=role.name, inline=True)
+    webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
+    if failed_members:
+        webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
+    webhook_embed.set_thumbnail(url=logo_url)
+
+    requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
 
 @bot.tree.command(name="bad_joke", description="Get a specified number of random bad jokes")
 async def bad_joke(interaction: discord.Interaction, number: int):
@@ -161,7 +161,7 @@ async def what_is_real(ctx):
     print("Someone found me")
     await ctx.send(str(essay_text))
 
-@bot.tree.command(name="incident", description="Report an incident.")
+@bot.command(name="incident")
 async def incident(interaction: discord.Interaction):
     embed = discord.Embed(
         title="Incident Report: SSH Misconfiguration",

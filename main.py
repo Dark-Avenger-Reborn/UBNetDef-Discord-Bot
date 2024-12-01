@@ -23,6 +23,7 @@ AUTHORIZED_USER_ID = [
     722854408182038683,  # Blake
 ]
 
+
 class ConfirmView(discord.ui.View):
     def __init__(self, interaction: discord.Interaction, role: discord.Role):
         super().__init__(timeout=60)
@@ -40,6 +41,8 @@ class ConfirmView(discord.ui.View):
         self.value = False
         self.stop()
 
+
+# Command: remove_role
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):
     if interaction.user.id not in AUTHORIZED_USER_ID:
@@ -87,11 +90,13 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
 
     await view.wait()
 
+    success = True
+    failed_members = []
+
     if view.value is None:
         await interaction.followup.send("Timed out. The role removal has been cancelled.", ephemeral=True)
+        success = False
     elif view.value:
-        success = True
-        failed_members = []
         for member in guild.members:
             if role in member.roles:
                 try:
@@ -100,71 +105,85 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
                     failed_members.append(member.name)
                     success = False
 
-        if success:
-            embed = discord.Embed(
-                title="Success",
-                description=f"Successfully removed the role {role.name} from all members who had it.",
-                color=discord.Color.green()
-            )
-        else:
-            embed = discord.Embed(
-                title="Partial Success",
-                description=f"Removed the role {role.name} from some members, but failed for: {', '.join(failed_members)}.",
-                color=discord.Color.orange()
-            )
-        embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed)
-        
-        # Send webhook notification
-        webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
-        webhook_embed = discord.Embed(
-            title="Role Removal Command Executed",
-            color=discord.Color.blue()
-        )
-        webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
-        webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
-        webhook_embed.add_field(name="Role", value=role.name, inline=True)
-        webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
-        if failed_members:
-            webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
-        webhook_embed.set_thumbnail(url=logo_url)
-
-        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
-
-    else:
-        await interaction.followup.send("Role removal cancelled.", ephemeral=True)
-
-@bot.tree.command(name="bad_joke", description="Get a specified number of random bad jokes")
-async def bad_joke(interaction: discord.Interaction, number: int):
-    if number < 1:
-        embed = discord.Embed(
-            title="Invalid Number",
-            description="Please enter a number greater than 0.",
-            color=discord.Color.red()
-        )
-        embed.set_thumbnail(url=logo_url)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-
-    selected_jokes = random.sample(jokes, min(number, len(jokes)))
-
     embed = discord.Embed(
-        title="Bad Jokes",
-        description="\n\n".join(selected_jokes),
+        title="Role Removal Summary",
+        description=f"Role removal command executed.",
+        color=discord.Color.green() if success else discord.Color.orange()
+    )
+    if view.value:
+        if success:
+            embed.description = f"Successfully removed the role {role.name} from all members who had it."
+        else:
+            embed.description = f"Removed the role {role.name} from some members, but failed for: {', '.join(failed_members)}."
+    else:
+        embed.description = "Role removal cancelled."
+
+    embed.set_thumbnail(url=logo_url)
+    await interaction.followup.send(embed=embed)
+
+    # Send webhook notification
+    webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
+    webhook_embed = discord.Embed(
+        title="Role Removal Command Executed",
         color=discord.Color.blue()
     )
-    embed.set_thumbnail(url=logo_url)
+    webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
+    webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
+    webhook_embed.add_field(name="Role", value=role.name, inline=True)
+    webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
+    if failed_members:
+        webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
+    webhook_embed.set_thumbnail(url=logo_url)
+
+    requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
+
+
+# Command: incident
+@bot.tree.command(name="incident", description="Report an incident.")
+async def incident(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="Incident Report: SSH Misconfiguration",
+        description="Details of the observed issue and resolution steps.",
+        color=discord.Color.red()
+    )
+    embed.add_field(
+        name="Incident",
+        value="RIT performed a break\n`ssh`: moving `whoami` to `whoareyou`",
+        inline=False
+    )
+    embed.add_field(
+        name="Fix",
+        value="Moving `/bin/whoareyou` back to `/bin/whoami`",
+        inline=False
+    )
+    embed.add_field(
+        name="Discovery",
+        value="This issue can be verified as broken by checking the scoring engine.",
+        inline=False
+    )
+    embed.add_field(
+        name="Systems Affected",
+        value="`10.8.1.40`",
+        inline=False
+    )
+    embed.set_footer(
+        text="Ensure systems are secured and the scoring engine reflects the fix.",
+        icon_url="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+    )
     await interaction.response.send_message(embed=embed)
+
 
 @bot.command(name='what_is_real?')
 async def what_is_real(ctx):
     print("Someone found me")
     await ctx.send(str(essay_text))
 
+
 @bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
     await bot.tree.sync()
     print('Bot is synced')
+
 
 bot.run(os.getenv('SECRET_DISCORD_KEY'))

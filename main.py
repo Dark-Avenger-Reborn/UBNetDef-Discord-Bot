@@ -42,6 +42,23 @@ class ConfirmView(discord.ui.View):
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):
+    # Define the success and failure states for the webhook
+    success = False
+    failed_members = []
+
+    # Always set the webhook URL
+    webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
+    
+    # Prepare the base for the webhook embed
+    webhook_embed = discord.Embed(
+        title="Role Removal Command Executed",
+        color=discord.Color.blue()
+    )
+    webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
+    webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
+    webhook_embed.add_field(name="Role", value=role.name, inline=True)
+
+    # Check if the user is authorized
     if interaction.user.id not in AUTHORIZED_USER_ID:
         embed = discord.Embed(
             title="Unauthorized Action",
@@ -50,10 +67,13 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         )
         embed.set_thumbnail(url=logo_url)
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        webhook_embed.add_field(name="Success", value="No (Unauthorized)", inline=True)
+        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
         return
 
+    # Check if the bot has Manage Roles permission
     guild = interaction.guild
-
     if not guild.me.guild_permissions.manage_roles:
         embed = discord.Embed(
             title="Missing Permissions",
@@ -63,19 +83,27 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         embed.set_thumbnail(url=logo_url)
         embed.add_field(name="How to Fix", value="1. Go to Server Settings > Roles.\n2. Make sure my role has **Manage Roles** permission.", inline=False)
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        webhook_embed.add_field(name="Success", value="No (Missing Permissions)", inline=True)
+        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
         return
 
+    # Check the role hierarchy to ensure the bot's top role is higher than the target role
     if guild.me.top_role.position <= role.position:
         embed = discord.Embed(
             title="Role Hierarchy Error",
-            description="I cannot remove this role because it is higher than my highest role. Please ensure my role is above the role you want me to manage.",
+            description="I cannot remove this role because it is higher than my highest role. Please ensure my role is above the role you want to manage.",
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
         embed.add_field(name="How to Fix", value="1. Go to Server Settings > Roles.\n2. Move my role higher than the role you want to manage.", inline=False)
         await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        webhook_embed.add_field(name="Success", value="No (Role Hierarchy Error)", inline=True)
+        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
         return
 
+    # Proceed with the confirmation process
     view = ConfirmView(interaction, role)
     embed = discord.Embed(
         title="Confirmation",
@@ -89,9 +117,12 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
 
     if view.value is None:
         await interaction.followup.send("Timed out. The role removal has been cancelled.", ephemeral=True)
+
+        webhook_embed.add_field(name="Success", value="No (Timed out)", inline=True)
+        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
+        return
     elif view.value:
         success = True
-        failed_members = []
         for member in guild.members:
             if role in member.roles:
                 try:
@@ -100,6 +131,7 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
                     failed_members.append(member.name)
                     success = False
 
+        # After attempting role removal, update the webhook
         if success:
             embed = discord.Embed(
                 title="Success",
@@ -114,27 +146,17 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
             )
         embed.set_thumbnail(url=logo_url)
         await interaction.followup.send(embed=embed)
-        print("here2")
 
+        webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
+        if failed_members:
+            webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
+        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
     else:
         await interaction.followup.send("Role removal cancelled.", ephemeral=True)
 
-    print("here")
-    # Send webhook notification
-    webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
-    webhook_embed = discord.Embed(
-        title="Role Removal Command Executed",
-        color=discord.Color.blue()
-    )
-    webhook_embed.add_field(name="User", value=interaction.user.name, inline=True)
-    webhook_embed.add_field(name="User ID", value=interaction.user.id, inline=True)
-    webhook_embed.add_field(name="Role", value=role.name, inline=True)
-    webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
-    if failed_members:
-        webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
-    webhook_embed.set_thumbnail(url=logo_url)
+        webhook_embed.add_field(name="Success", value="No (Cancelled)", inline=True)
+        requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
 
-    requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
 
 @bot.tree.command(name="bad_joke", description="Get a specified number of random bad jokes")
 async def bad_joke(interaction: discord.Interaction, number: int):

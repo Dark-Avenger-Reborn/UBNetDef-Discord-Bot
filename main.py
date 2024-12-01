@@ -114,10 +114,12 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
             )
         embed.set_thumbnail(url=logo_url)
         await interaction.followup.send(embed=embed)
+        print("here2")
 
     else:
         await interaction.followup.send("Role removal cancelled.", ephemeral=True)
 
+    print("here")
     # Send webhook notification
     webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
     webhook_embed = discord.Embed(

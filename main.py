@@ -159,9 +159,9 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
 
 
-@bot.tree.command(name="bad_joke", description="Get a specified number of random bad jokes")
-async def bad_joke(interaction: discord.Interaction, number: int):
-    if number < 1:
+@bot.tree.command(name="bad_joke", description="Get a specified quantity of random bad jokes")
+async def bad_joke(interaction: discord.Interaction, quantity: int):
+    if quantity < 1:
         embed = discord.Embed(
             title="Invalid Number",
             description="Please enter a number greater than 0.",
@@ -171,7 +171,7 @@ async def bad_joke(interaction: discord.Interaction, number: int):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
-    selected_jokes = random.sample(jokes, min(number, len(jokes)))
+    selected_jokes = random.sample(jokes, min(quantity, len(jokes)))
 
     embed = discord.Embed(
         title="Bad Jokes",

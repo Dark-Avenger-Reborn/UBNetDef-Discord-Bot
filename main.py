@@ -21,6 +21,7 @@ AUTHORIZED_USER_ID = [
     801475805402103859,  # Me
     221812910668775425,  # Ethan
     722854408182038683,  # Blake
+    1015468364421939201, # Aaron
 ]
 
 class ConfirmView(discord.ui.View):

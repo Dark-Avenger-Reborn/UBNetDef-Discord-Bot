@@ -48,7 +48,7 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
     failed_members = []
 
     # Always set the webhook URL
-    webhook_url = "https://discord.com/api/webhooks/1308915463455244309/WgWMj1mbCFmQVNgdd8Tyd5yv0TcFTywKgHbQ3cGZzwyy4MHf5argblhck_S5Qalf1Fpr"
+    webhook_url = os.getenv('WEBHOOK_URL')
     
     # Prepare the base for the webhook embed
     webhook_embed = discord.Embed(

@@ -1,6 +1,6 @@
 # UBNetDef Discord Bot 🤖
 
-A versatile Discord bot that provides utilities for role management, jokes, incident reporting, and more. It is designed to automate tasks like role removal, deliver bad jokes, and help manage incidents within a server.
+This bot is specifically designed for the **[UBNetDef Lockdown Comp](https://lockdown.ubnetdef.org/)**. It provides various utilities for role management, jokes, and other tools to help manage and interact with the community during the competition.
 
 ## Features ✨
 - **Role Management**: Remove roles from all members with a confirmation prompt.
@@ -61,17 +61,6 @@ Get a specified quantity of random bad jokes. 🤪
 
 ### `!what_is_real?`
 Responds with an essay-style text. This command is triggered using `!what_is_real?`. 📚
-
-## New Updates 🚀
-
-### Webhook URL in `.env`
-To enhance security and flexibility, the webhook URL is now loaded from the `.env` file. You can configure it as follows:
-
-```python
-webhook_url = os.getenv('WEBHOOK_URL')
-```
-
-This allows you to easily change the webhook URL without modifying the code directly. Simply update the `.env` file to reflect the new URL, and the bot will automatically use it.
 
 ## Contributing 🤝
 

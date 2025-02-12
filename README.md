@@ -1,20 +1,19 @@
-# UBNetDef Discord Bot
+# UBNetDef Discord Bot 🤖
 
 A versatile Discord bot that provides utilities for role management, jokes, incident reporting, and more. It is designed to automate tasks like role removal, deliver bad jokes, and help manage incidents within a server.
 
-## Features
+## Features ✨
 - **Role Management**: Remove roles from all members with a confirmation prompt.
 - **Bad Jokes**: Retrieve a specified number of random bad jokes.
-- **Incident Reporting**: Report incidents like misconfigurations with detailed embeds.
 - **Custom Commands**: A variety of customizable commands for user interaction.
 
-## Prerequisites
+## Prerequisites 🛠️
 Before setting up the bot, ensure you have the following installed:
 - Python 3.x
 - pip (Python package installer)
 - [Discord Developer Portal](https://discord.com/developers/applications) account to create the bot
 
-## Installation
+## Installation ⚙️
 
 ### 1. Clone the repository
 ```bash
@@ -47,7 +46,7 @@ Start the bot by running:
 python main.py
 ```
 
-## Commands
+## Commands 📜
 
 ### `/remove_role`
 Removes a specified role from everyone in the server.
@@ -56,15 +55,29 @@ Removes a specified role from everyone in the server.
 - **Confirmation Required**: The bot will ask for confirmation before removing the role.
 
 ### `/bad_joke [quantity]`
-Get a specified quantity of random bad jokes.
+Get a specified quantity of random bad jokes. 🤪
 
 - **Usage**: `/bad_joke 3` to get 3 jokes.
 
-## Contributing
+### `!what_is_real?`
+Responds with an essay-style text. This command is triggered using `!what_is_real?`. 📚
+
+## New Updates 🚀
+
+### Webhook URL in `.env`
+To enhance security and flexibility, the webhook URL is now loaded from the `.env` file. You can configure it as follows:
+
+```python
+webhook_url = os.getenv('WEBHOOK_URL')
+```
+
+This allows you to easily change the webhook URL without modifying the code directly. Simply update the `.env` file to reflect the new URL, and the bot will automatically use it.
+
+## Contributing 🤝
 
 Feel free to fork this repository, open issues, or submit pull requests if you'd like to contribute improvements or add new features!
 
 ---
 
-### Acknowledgments
+### Acknowledgments 🙏
 - **Libraries**: `discord.py`, `dotenv`, `requests`, and others.

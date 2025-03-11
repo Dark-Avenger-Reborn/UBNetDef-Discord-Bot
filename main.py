@@ -147,14 +147,14 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
                 color=discord.Color.orange()
             )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.edit_original_response(embed=embed)
 
         webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
         if failed_members:
             webhook_embed.add_field(name="Failed Members", value=", ".join(failed_members), inline=False)
         requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
     else:
-        await interaction.followup.send("Role removal cancelled.", ephemeral=True)
+        await interaction.edit_original_response(content="Role removal cancelled.", view=None)
 
         webhook_embed.add_field(name="Success", value="No (Cancelled)", inline=True)
         requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})

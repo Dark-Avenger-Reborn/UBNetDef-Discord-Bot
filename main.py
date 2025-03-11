@@ -43,14 +43,10 @@ class ConfirmView(discord.ui.View):
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):
-    # Define the success and failure states for the webhook
     success = False
     failed_members = []
-
-    # Always set the webhook URL
     webhook_url = os.getenv('WEBHOOK_URL')
     
-    # Prepare the base for the webhook embed
     webhook_embed = discord.Embed(
         title="Role Removal Command Executed",
         color=discord.Color.blue()
@@ -60,7 +56,6 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
     webhook_embed.add_field(name="Role", value=role.name, inline=True)
     webhook_embed.set_thumbnail(url=logo_url)
 
-    # Check if the user is authorized
     if interaction.user.id not in AUTHORIZED_USER_ID:
         embed = discord.Embed(
             title="Unauthorized Action",
@@ -74,23 +69,20 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
         return
 
-    # Check if the bot has Manage Roles permission
     guild = interaction.guild
     if not guild.me.guild_permissions.manage_roles:
         embed = discord.Embed(
             title="Missing Permissions",
-            description="I don't have the required permissions to manage roles in this server. Please grant me the **Manage Roles** permission.",
+            description="I don't have the required permissions to manage roles. Please grant me the **Manage Roles** permission.",
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        embed.add_field(name="How to Fix", value="1. Go to Server Settings > Roles.\n2. Make sure my role has **Manage Roles** permission.", inline=False)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
         webhook_embed.add_field(name="Success", value="No (Missing Permissions)", inline=True)
         requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
         return
 
-    # Check the role hierarchy to ensure the bot's top role is higher than the target role
     if guild.me.top_role.position <= role.position:
         embed = discord.Embed(
             title="Role Hierarchy Error",
@@ -98,14 +90,16 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        embed.add_field(name="How to Fix", value="1. Go to Server Settings > Roles.\n2. Move my role higher than the role you want to manage.", inline=False)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
         webhook_embed.add_field(name="Success", value="No (Role Hierarchy Error)", inline=True)
         requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
         return
 
-    # Proceed with the confirmation process
+    # **Defer the interaction to prevent the "This interaction failed" message**
+    await interaction.response.defer(ephemeral=True)
+
+    # **Send the confirmation message**
     view = ConfirmView(interaction, role)
     embed = discord.Embed(
         title="Confirmation",
@@ -113,12 +107,12 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
         color=discord.Color.yellow()
     )
     embed.set_thumbnail(url=logo_url)
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    await interaction.followup.send(embed=embed, view=view)
 
     await view.wait()
 
     if view.value is None:
-        await interaction.followup.send("Timed out. The role removal has been cancelled.", ephemeral=True)
+        await interaction.edit_original_response(content="Timed out. The role removal has been cancelled.", view=None)
 
         webhook_embed.add_field(name="Success", value="No (Timed out)", inline=True)
         requests.post(webhook_url, json={"embeds": [webhook_embed.to_dict()]})
@@ -133,7 +127,6 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
                     failed_members.append(member.name)
                     success = False
 
-        # After attempting role removal, update the webhook
         if success:
             embed = discord.Embed(
                 title="Success",
@@ -146,8 +139,9 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
                 description=f"Removed the role {role.name} from some members, but failed for: {', '.join(failed_members)}.",
                 color=discord.Color.orange()
             )
+
         embed.set_thumbnail(url=logo_url)
-        await interaction.edit_original_response(embed=embed)
+        await interaction.edit_original_response(embed=embed, view=None)
 
         webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
         if failed_members:
@@ -186,39 +180,6 @@ async def bad_joke(interaction: discord.Interaction, quantity: int):
 async def what_is_real(ctx):
     print("Someone found me")
     await ctx.send(str(essay_text))
-
-@bot.command(name="incident")
-async def incident(interaction: discord.Interaction):
-    embed = discord.Embed(
-        title="Incident Report: SSH Misconfiguration",
-        description="Details of the observed issue and resolution steps.",
-        color=discord.Color.red()
-    )
-    embed.add_field(
-        name="Incident",
-        value="RIT performed a break\n`ssh`: moving `whoami` to `whoareyou`",
-        inline=False
-    )
-    embed.add_field(
-        name="Fix",
-        value="Moving `/bin/whoareyou` back to `/bin/whoami`",
-        inline=False
-    )
-    embed.add_field(
-        name="Discovery",
-        value="This issue can be verified as broken by checking the scoring engine.",
-        inline=False
-    )
-    embed.add_field(
-        name="Systems Affected",
-        value="`10.8.1.40`",
-        inline=False
-    )
-    embed.set_footer(
-        text="Ensure systems are secured and the scoring engine reflects the fix.",
-        icon_url="https://cdn-icons-png.flaticon.com/512/847/847969.png"
-    )
-    await interaction.response.send_message(embed=embed)
 
 @bot.event
 async def on_ready():

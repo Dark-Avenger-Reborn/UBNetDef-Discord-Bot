@@ -73,10 +73,14 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
         color=discord.Color.yellow()
     )
     embed.set_thumbnail(url=logo_url)
+
+    # Send the initial prompt (this is the part that should stay visible)
     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
+    # Wait for the confirmation response
     await view.wait()
 
+    # After waiting for the response, we need to handle the confirmation
     if view.value is None:
         embed = discord.Embed(
             title="Action Timed Out",
@@ -84,9 +88,9 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.orange()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
     elif view.value:
-        # Delete all messages in the channel
+        # If the user confirmed, delete all messages in the channel
         deleted = await channel.purge()
 
         embed = discord.Embed(
@@ -95,7 +99,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
     else:
         embed = discord.Embed(
             title="Action Cancelled",
@@ -103,7 +107,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):

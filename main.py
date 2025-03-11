@@ -107,7 +107,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.followup.defer(embed=embed, ephemeral=True)
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):

@@ -67,6 +67,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
         embed.set_thumbnail(url=logo_url)
         await interaction.followup.send(embed=embed, ephemeral=True)
         return
+    await interaction.response.defer(ephemeral=True)
 
     # Proceed with the confirmation process
     view = ConfirmView(interaction, channel)

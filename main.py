@@ -147,7 +147,7 @@ async def remove_role(interaction: discord.Interaction, role: discord.Role):
                 color=discord.Color.orange()
             )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
         webhook_embed.add_field(name="Success", value="Yes" if success else "No", inline=True)
         if failed_members:

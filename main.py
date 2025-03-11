@@ -41,6 +41,70 @@ class ConfirmView(discord.ui.View):
         self.value = False
         self.stop()
 
+@bot.tree.command(name="clear_channel", description="Clear all messages in a specified channel")
+async def clear_channel(interaction: discord.Interaction, channel: discord.TextChannel):
+    # Check if the user is authorized
+    if interaction.user.id not in AUTHORIZED_USER_ID:
+        embed = discord.Embed(
+            title="Unauthorized Action",
+            description="You do not have permission to run this command.",
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Ensure the bot has permission to manage messages in the channel
+    if not channel.permissions_for(interaction.guild.me).manage_messages:
+        embed = discord.Embed(
+            title="Missing Permissions",
+            description=f"I don't have permission to manage messages in {channel.mention}. Please make sure I have **Manage Messages** permission.",
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Proceed with the confirmation process
+    view = ConfirmView(interaction, channel)
+    embed = discord.Embed(
+        title="Confirmation",
+        description=f"Are you sure you want to delete all messages in {channel.mention}?",
+        color=discord.Color.yellow()
+    )
+    embed.set_thumbnail(url=logo_url)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+    await view.wait()
+
+    if view.value is None:
+        embed = discord.Embed(
+            title="Action Timed Out",
+            description="You took too long to respond. The operation has been cancelled.",
+            color=discord.Color.orange()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.followup.send(embed=embed)
+    elif view.value:
+        # Delete all messages in the channel
+        deleted = await channel.purge()
+
+        embed = discord.Embed(
+            title="Channel Cleared",
+            description=f"Successfully deleted {len(deleted)} messages in {channel.mention}.",
+            color=discord.Color.green()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.followup.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            title="Action Cancelled",
+            description="The operation has been cancelled.",
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.followup.send(embed=embed)
+
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):
     success = False

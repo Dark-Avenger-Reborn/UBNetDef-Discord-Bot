@@ -54,7 +54,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.edit_original_response(embed=embed)
         return
 
     # Ensure the bot has permission to manage messages in the channel
@@ -65,7 +65,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.edit_original_response(embed=embed)
         return
 
     # Proceed with the confirmation process
@@ -78,7 +78,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
     embed.set_thumbnail(url=logo_url)
 
     # Send the initial prompt (this is the part that should stay visible)
-    await interaction.followup.send(embed=embed, view=view, ephemeral=True)
+    await interaction.edit_original_response(embed=embed, view=view)
 
     # Wait for the confirmation response
     await view.wait()
@@ -91,10 +91,9 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.orange()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.edit_original_response(embed=embed, view=None)
     elif view.value:
         # If the user confirmed, delete all messages in the channel
-        await interaction.response.defer(ephemeral=True)
         deleted = await channel.purge()
 
         embed = discord.Embed(
@@ -103,7 +102,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.edit_original_response(embed=embed, view=None)
     else:
         embed = discord.Embed(
             title="Action Cancelled",
@@ -111,7 +110,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        await interaction.edit_original_response(embed=embed, view=None)
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):

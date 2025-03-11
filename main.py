@@ -43,7 +43,7 @@ class ConfirmView(discord.ui.View):
 
 @bot.tree.command(name="clear_channel", description="Clear all messages in a specified channel")
 async def clear_channel(interaction: discord.Interaction, channel: discord.TextChannel):
-    # Defer the response immediately to avoid "interaction failed" message
+    # Immediately defer to prevent "interaction failed"
     await interaction.response.defer(ephemeral=True)
 
     # Check if the user is authorized
@@ -54,6 +54,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
+        # Edit the deferred response with the error message
         await interaction.edit_original_response(embed=embed)
         return
 
@@ -65,6 +66,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
+        # Edit the deferred response with the missing permissions message
         await interaction.edit_original_response(embed=embed)
         return
 
@@ -77,7 +79,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
     )
     embed.set_thumbnail(url=logo_url)
 
-    # Send the initial prompt (this is the part that should stay visible)
+    # Edit the deferred response with the confirmation prompt
     await interaction.edit_original_response(embed=embed, view=view)
 
     # Wait for the confirmation response
@@ -91,6 +93,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.orange()
         )
         embed.set_thumbnail(url=logo_url)
+        # Edit the deferred response with the timeout message
         await interaction.edit_original_response(embed=embed, view=None)
     elif view.value:
         # If the user confirmed, delete all messages in the channel
@@ -102,6 +105,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=logo_url)
+        # Edit the deferred response with the success message
         await interaction.edit_original_response(embed=embed, view=None)
     else:
         embed = discord.Embed(
@@ -110,6 +114,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
+        # Edit the deferred response with the cancellation message
         await interaction.edit_original_response(embed=embed, view=None)
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")

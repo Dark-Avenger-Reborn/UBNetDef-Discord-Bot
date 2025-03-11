@@ -88,7 +88,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.orange()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.defer(embed=embed, ephemeral=True)
+        await interaction.response.defer(embed=embed, ephemeral=True)
     elif view.value:
         # If the user confirmed, delete all messages in the channel
         deleted = await channel.purge()
@@ -99,7 +99,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.defer(embed=embed, ephemeral=True)
+        await interaction.response.defer(embed=embed, ephemeral=True)
     else:
         embed = discord.Embed(
             title="Action Cancelled",
@@ -107,7 +107,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        await interaction.followup.defer(embed=embed, ephemeral=True)
+        await interaction.response.defer(embed=embed, ephemeral=True)
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):

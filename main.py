@@ -67,7 +67,6 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
         embed.set_thumbnail(url=logo_url)
         await interaction.followup.send(embed=embed, ephemeral=True)
         return
-    await interaction.response.defer(ephemeral=True)
 
     # Proceed with the confirmation process
     view = ConfirmView(interaction, channel)
@@ -95,6 +94,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
         await interaction.followup.send(embed=embed, ephemeral=True)
     elif view.value:
         # If the user confirmed, delete all messages in the channel
+        await interaction.response.defer(ephemeral=True)
         deleted = await channel.purge()
 
         embed = discord.Embed(

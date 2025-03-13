@@ -99,9 +99,21 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
         # If the user confirmed, delete all messages in the channel
         deleted = await channel.purge()
 
+        deleted_count = len(deleted)
+        async for message in channel.history(limit=None, oldest_first=False):
+            if (discord.utils.utcnow() - message.created_at).days > 14:
+                try:
+                    await message.delete()
+                    deleted_count += 1
+                    await asyncio.sleep(1)  # Prevent hitting Discord's rate limit
+                except discord.Forbidden:
+                    break
+                except discord.HTTPException:
+                    continue
+
         embed = discord.Embed(
             title="Channel Cleared",
-            description=f"Successfully deleted {len(deleted)} messages in {channel.mention}.",
+            description=f"Successfully deleted {deleted_count} messages in {channel.mention}.",
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=logo_url)

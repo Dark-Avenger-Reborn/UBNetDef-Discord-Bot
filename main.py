@@ -42,7 +42,7 @@ class ConfirmView(discord.ui.View):
         self.value = False
         self.stop()
 
-@bot.tree.command(name="clear_channel", description="Clear all messages in a specified channel")
+@bot.tree.command(name="clear_channel", description="Delete and recreate a specified channel with the same settings.")
 async def clear_channel(interaction: discord.Interaction, channel: discord.TextChannel):
     # Immediately defer to prevent "interaction failed"
     await interaction.response.defer(ephemeral=True)
@@ -59,11 +59,11 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
         await interaction.edit_original_response(embed=embed)
         return
 
-    # Ensure the bot has permission to manage messages in the channel
-    if not channel.permissions_for(interaction.guild.me).manage_messages:
+    # Ensure the bot has permission to manage channels in the server
+    if not interaction.guild.me.guild_permissions.manage_channels:
         embed = discord.Embed(
             title="Missing Permissions",
-            description=f"I don't have permission to manage messages in {channel.mention}. Please make sure I have **Manage Messages** permission.",
+            description="I don't have permission to manage channels. Please make sure I have **Manage Channels** permission.",
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
@@ -75,7 +75,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
     view = ConfirmView(interaction, channel)
     embed = discord.Embed(
         title="Confirmation",
-        description=f"Are you sure you want to delete all messages in {channel.mention}?",
+        description=f"Are you sure you want to delete and recreate {channel.mention}?",
         color=discord.Color.yellow()
     )
     embed.set_thumbnail(url=logo_url)
@@ -97,29 +97,50 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
         # Edit the deferred response with the timeout message
         await interaction.edit_original_response(embed=embed, view=None)
     elif view.value:
-        # If the user confirmed, delete all messages in the channel
-        deleted = await channel.purge()
+        # If the user confirmed, proceed with deleting the channel and recreating it
+        try:
+            # Step 1: Get current channel settings
+            channel_name = channel.name
+            channel_overwrites = channel.overwrites
+            channel_position = channel.position
+            channel_category = channel.category
+            channel_permissions = channel.permissions_for(interaction.guild.me)
+            
+            # Step 2: Delete the channel
+            await channel.delete()
 
-        deleted_count = len(deleted)
-        async for message in channel.history(limit=None, oldest_first=False):
-            if (discord.utils.utcnow() - message.created_at).days > 14:
-                try:
-                    await message.delete()
-                    deleted_count += 1
-                    await asyncio.sleep(1)  # Prevent hitting Discord's rate limit
-                except discord.Forbidden:
-                    break
-                except discord.HTTPException:
-                    continue
+            # Step 3: Recreate the channel
+            new_channel = await interaction.guild.create_text_channel(channel_name, category=channel_category)
+            
+            # Step 4: Reapply overwrites, permissions, and settings
+            for role, overwrite in channel_overwrites.items():
+                await new_channel.set_permissions(role, overwrite=overwrite)
+            
+            # Step 5: Recreate webhooks (if any)
+            webhooks = await channel.webhooks()
+            for webhook in webhooks:
+                await new_channel.create_webhook(name=webhook.name, avatar=webhook.avatar)
+            
+            # Step 6: (Optional) Recreate applications if needed
 
-        embed = discord.Embed(
-            title="Channel Cleared",
-            description=f"Successfully deleted {deleted_count} messages in {channel.mention}.",
-            color=discord.Color.green()
-        )
-        embed.set_thumbnail(url=logo_url)
-        # Edit the deferred response with the success message
-        await interaction.edit_original_response(embed=embed, view=None)
+            embed = discord.Embed(
+                title="Channel Recreated",
+                description=f"Successfully deleted and recreated {channel_name} with the same settings.",
+                color=discord.Color.green()
+            )
+            embed.set_thumbnail(url=logo_url)
+            # Edit the deferred response with the success message
+            await interaction.edit_original_response(embed=embed, view=None)
+
+        except discord.HTTPException as e:
+            embed = discord.Embed(
+                title="Error",
+                description=f"An error occurred while recreating the channel: {str(e)}",
+                color=discord.Color.red()
+            )
+            embed.set_thumbnail(url=logo_url)
+            await interaction.edit_original_response(embed=embed, view=None)
+
     else:
         embed = discord.Embed(
             title="Action Cancelled",

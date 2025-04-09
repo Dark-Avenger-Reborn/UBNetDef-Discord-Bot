@@ -42,6 +42,10 @@ class ConfirmView(discord.ui.View):
         self.value = False
         self.stop()
 
+import discord
+from discord.ext import commands
+import asyncio
+
 @bot.tree.command(name="clear_channel", description="Delete and recreate a specified channel with the same settings.")
 async def clear_channel(interaction: discord.Interaction, channel: discord.TextChannel):
     # Immediately defer to prevent "interaction failed"
@@ -99,29 +103,30 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
     elif view.value:
         # If the user confirmed, proceed with deleting the channel and recreating it
         try:
-            # Step 1: Get current channel settings
+            # Step 1: Get current channel settings before deleting
             channel_name = channel.name
             channel_overwrites = channel.overwrites
             channel_position = channel.position
             channel_category = channel.category
-            channel_permissions = channel.permissions_for(interaction.guild.me)
-            
-            # Step 2: Delete the channel
+
+            # Step 2: Retrieve webhooks before deleting the channel
+            webhooks = await channel.webhooks()
+
+            # Step 3: Delete the channel
             await channel.delete()
 
-            # Step 3: Recreate the channel
+            # Step 4: Recreate the channel
             new_channel = await interaction.guild.create_text_channel(channel_name, category=channel_category)
             
-            # Step 4: Reapply overwrites, permissions, and settings
+            # Step 5: Reapply overwrites, permissions, and settings
             for role, overwrite in channel_overwrites.items():
                 await new_channel.set_permissions(role, overwrite=overwrite)
             
-            # Step 5: Recreate webhooks (if any)
-            webhooks = await channel.webhooks()
+            # Step 6: Recreate webhooks (if any)
             for webhook in webhooks:
                 await new_channel.create_webhook(name=webhook.name, avatar=webhook.avatar)
             
-            # Step 6: (Optional) Recreate applications if needed
+            # Step 7: (Optional) Recreate applications if needed
 
             embed = discord.Embed(
                 title="Channel Recreated",

@@ -46,6 +46,10 @@ import discord
 from discord.ext import commands
 import asyncio
 
+import discord
+from discord.ext import commands
+import asyncio
+
 @bot.tree.command(name="clear_channel", description="Delete and recreate a specified channel with the same settings.")
 async def clear_channel(interaction: discord.Interaction, channel: discord.TextChannel):
     # Immediately defer to prevent "interaction failed"
@@ -59,8 +63,8 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        # Edit the deferred response with the error message
-        await interaction.edit_original_response(embed=embed)
+        # Send a new message with the error
+        await interaction.followup.send(embed=embed)
         return
 
     # Ensure the bot has permission to manage channels in the server
@@ -71,8 +75,8 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        # Edit the deferred response with the missing permissions message
-        await interaction.edit_original_response(embed=embed)
+        # Send a new message with the missing permissions message
+        await interaction.followup.send(embed=embed)
         return
 
     # Proceed with the confirmation process
@@ -84,8 +88,8 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
     )
     embed.set_thumbnail(url=logo_url)
 
-    # Edit the deferred response with the confirmation prompt
-    await interaction.edit_original_response(embed=embed, view=view)
+    # Send the confirmation prompt
+    await interaction.followup.send(embed=embed, view=view)
 
     # Wait for the confirmation response
     await view.wait()
@@ -98,8 +102,8 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.orange()
         )
         embed.set_thumbnail(url=logo_url)
-        # Edit the deferred response with the timeout message
-        await interaction.edit_original_response(embed=embed, view=None)
+        # Send a new message with the timeout message
+        await interaction.followup.send(embed=embed)
     elif view.value:
         # If the user confirmed, proceed with deleting the channel and recreating it
         try:
@@ -134,8 +138,8 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
                 color=discord.Color.green()
             )
             embed.set_thumbnail(url=logo_url)
-            # Edit the deferred response with the success message
-            await interaction.edit_original_response(embed=embed, view=None)
+            # Send the success message
+            await interaction.followup.send(embed=embed)
 
         except discord.HTTPException as e:
             embed = discord.Embed(
@@ -144,7 +148,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
                 color=discord.Color.red()
             )
             embed.set_thumbnail(url=logo_url)
-            await interaction.edit_original_response(embed=embed, view=None)
+            await interaction.followup.send(embed=embed)
 
     else:
         embed = discord.Embed(
@@ -153,8 +157,9 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=logo_url)
-        # Edit the deferred response with the cancellation message
-        await interaction.edit_original_response(embed=embed, view=None)
+        # Send the cancellation message
+        await interaction.followup.send(embed=embed)
+
 
 @bot.tree.command(name="remove_role", description="Remove a specified role from everyone in the server")
 async def remove_role(interaction: discord.Interaction, role: discord.Role):

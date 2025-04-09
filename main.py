@@ -132,14 +132,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             
             # Step 7: (Optional) Recreate applications if needed
 
-            embed = discord.Embed(
-                title="Channel Recreated",
-                description=f"Successfully deleted and recreated {channel_name} with the same settings.",
-                color=discord.Color.green()
-            )
-            embed.set_thumbnail(url=logo_url)
-            # Send the success message
-            await interaction.followup.send(embed=embed)
+            # No need to send a response if successful, simply return
 
         except discord.HTTPException as e:
             embed = discord.Embed(
@@ -148,6 +141,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
                 color=discord.Color.red()
             )
             embed.set_thumbnail(url=logo_url)
+            # Send an error message if something went wrong
             await interaction.followup.send(embed=embed)
 
     else:

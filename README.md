@@ -53,7 +53,7 @@ Delete and recreate a specified channel with the same settings.
 
 - **Permissions Required**: Only authorized users can execute this command.
 - **Confirmation Required**: The bot will ask for confirmation before removing the role.
-- **Webhooks not recreated**: The channel ID will change and Integrations are not copied.
+- **Webhooks not Recreated**: The channel ID will change and Integrations are not copied.
 
 ### `/remove_role`
 Removes a specified role from everyone in the server.

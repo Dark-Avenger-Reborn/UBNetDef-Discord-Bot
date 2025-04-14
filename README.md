@@ -48,6 +48,13 @@ python main.py
 
 ## Commands 📜
 
+### `/clear_channel`
+Delete and recreate a specified channel with the same settings.
+
+- **Permissions Required**: Only authorized users can execute this command.
+- **Confirmation Required**: The bot will ask for confirmation before removing the role.
+- **Webhooks not recreated**: The channel ID will change and Integrations are not copied.
+
 ### `/remove_role`
 Removes a specified role from everyone in the server.
 
@@ -56,6 +63,11 @@ Removes a specified role from everyone in the server.
 
 ### `/bad_joke [quantity]`
 Get a specified quantity of random bad jokes. 🤪
+
+- **Usage**: `/bad_joke 3` to get 3 jokes.
+
+### `/good_joke [quantity]`
+Get a specified quantity of jokes written by previous teams.
 
 - **Usage**: `/bad_joke 3` to get 3 jokes.
 

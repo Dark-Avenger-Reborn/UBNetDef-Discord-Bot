@@ -4,6 +4,7 @@ from discord import app_commands
 import os
 import random
 from jokes import jokes
+from good_jokes import good_jokes
 import requests
 from dotenv import load_dotenv
 from essay import essay_text
@@ -114,7 +115,7 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
             channel_category = channel.category
 
             # Step 2: Retrieve webhooks before deleting the channel
-            webhooks = await channel.webhooks()
+            #webhooks = await channel.webhooks()
 
             # Step 3: Delete the channel
             await channel.delete()
@@ -127,11 +128,9 @@ async def clear_channel(interaction: discord.Interaction, channel: discord.TextC
                 await new_channel.set_permissions(role, overwrite=overwrite)
             
             # Step 6: Recreate webhooks (if any)
-            for webhook in webhooks:
-                await new_channel.create_webhook(name=webhook.name, avatar=webhook.avatar)
+            #for webhook in webhooks:
+            #    await new_channel.create_webhook(name=webhook.name, avatar=webhook.avatar)
             
-            # Step 7: (Optional) Recreate applications if needed
-
             # No need to send a response if successful, simply return
 
         except discord.HTTPException as e:
@@ -290,6 +289,28 @@ async def bad_joke(interaction: discord.Interaction, quantity: int):
 
     embed = discord.Embed(
         title="Bad Jokes",
+        description="\n\n".join(selected_jokes),
+        color=discord.Color.blue()
+    )
+    embed.set_thumbnail(url=logo_url)
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="good_joke", description="Get a specified quantity of random jokes written by past teams")
+async def good_joke(interaction: discord.Interaction, quantity: int):
+    if quantity < 1:
+        embed = discord.Embed(
+            title="Invalid Number",
+            description="Please enter a number greater than 0.",
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=logo_url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    selected_jokes = random.sample(good_jokes, min(quantity, len(good_jokes)))
+
+    embed = discord.Embed(
+        title="Good Jokes",
         description="\n\n".join(selected_jokes),
         color=discord.Color.blue()
     )

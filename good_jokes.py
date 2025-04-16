@@ -1,21 +1,21 @@
 good_jokes = [
-    "How did I get out of Iraq? Iran"
-    "Why do Java developers wear glasses? Because they can't C#"
-    "What is Red Team's least favorite snack? Malwarebytes"
-    "I told my friend a joke about UDP... But I'm not sure if he got it."
-    "What did the buffalo say when his son left? Bison!"
-    "Why do programmers prefer dark mode? Because the light attracts bugs!"
-    "How many programmers does it take to change a lightbulb? None, that's a hardware issue!"
-    "Why don’t skeletons fight each other? They don’t have the guts... but they sure have a lot of Java!"
-    "Computers are like air conditioners, they stop working properly if you open up Windows."
-    "What do you call an elderly hacker? An old hack."
-    "When she query my SQL til I inject"
-    "Red Team when the board is yet to be red"
-    "I have OS built by god and am schizophrenic, fear me red team"
-    "I was watching a show show about beavers. It was the best dam program I've ever seen."
-    "My buddy James walked into a bar at night. He still has a headache."
-    'Two muffins are sitting in an oven. One turns to the other and says "Is it getting hot in here, or is it just me?".'
-    "Hacker? I barely know her!"
-    "Please look at our infrastructure uptime, that is the real joke here."
-    "Red Team will huff and puff and below our firewall down"
+    "How did I get out of Iraq? Iran",
+    "Why do Java developers wear glasses? Because they can't C#",
+    "What is Red Team's least favorite snack? Malwarebytes",
+    "I told my friend a joke about UDP... But I'm not sure if he got it.",
+    "What did the buffalo say when his son left? Bison!",
+    "Why do programmers prefer dark mode? Because the light attracts bugs!",
+    "How many programmers does it take to change a lightbulb? None, that's a hardware issue!",
+    "Why don’t skeletons fight each other? They don’t have the guts... but they sure have a lot of Java!",
+    "Computers are like air conditioners, they stop working properly if you open up Windows.",
+    "What do you call an elderly hacker? An old hack.",
+    "When she query my SQL til I inject",
+    "Red Team when the board is yet to be red",
+    "I have OS built by god and am schizophrenic, fear me red team",
+    "I was watching a show show about beavers. It was the best dam program I've ever seen.",
+    "My buddy James walked into a bar at night. He still has a headache.",
+    'Two muffins are sitting in an oven. One turns to the other and says "Is it getting hot in here, or is it just me?".',
+    "Hacker? I barely know her!",
+    "Please look at our infrastructure uptime, that is the real joke here.",
+    "Red Team will huff and puff and below our firewall down",
 ]
